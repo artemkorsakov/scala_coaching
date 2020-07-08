@@ -1,3 +1,4 @@
+import Helpers._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class EitherImpTest extends AnyFlatSpec {
@@ -62,6 +63,64 @@ class EitherImpTest extends AnyFlatSpec {
     assert(rightImp.map(_ => "scala").right.get === "scala")
     val leftImp: EitherImp[String, Int] = LeftImp("Test")
     assert(leftImp.map(_ => "scala").left.get === "Test")
+  }
+
+  "biTraverse" should " return Either[List[L], List[R]] for Left list" in {
+    val seq: Seq[EitherImp[List[Int], String]] = List(LeftImp(List(0, 1, 2, 3, 4, 5)), LeftImp(List(0, 1, 2, 3, 4)),
+      LeftImp(List(0, 1, 2, 3)), LeftImp(List(0, 1, 2)), LeftImp(List(0, 1)), LeftImp(List(0)))
+    val leftTraverse = seq.biTraverse
+    assert(leftTraverse.isLeft === true)
+    assert(leftTraverse.isRight === false)
+    assert(leftTraverse.left.get === List(0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0))
+  }
+
+  "biTraverse" should " return Either[List[L], List[R]] for Left/Right list" in {
+    val seq: Seq[EitherImp[List[Int], String]] = List(RightImp("Test0"), LeftImp(List(0, 1, 2, 3, 4, 5)),
+      LeftImp(List(0, 1, 2, 3, 4)), LeftImp(List(0, 1, 2, 3)), RightImp("Test1"), LeftImp(List(0, 1, 2)),
+      RightImp("Test2"), LeftImp(List(0, 1)), LeftImp(List(0)), RightImp("Test3"))
+    val leftTraverse = seq.biTraverse
+    assert(leftTraverse.isLeft === true)
+    assert(leftTraverse.isRight === false)
+    assert(leftTraverse.left.get === List(0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0))
+  }
+
+  "biTraverse" should " return Either[List[L], List[R]] for Right list" in {
+    val seq: Seq[EitherImp[List[Int], String]] = List(RightImp("Test0"), RightImp("Test1"), RightImp("Test2"),
+      RightImp("Test3"))
+    val leftTraverse = seq.biTraverse
+    assert(leftTraverse.isLeft === false)
+    assert(leftTraverse.isRight === true)
+    assert(leftTraverse.right.get === List("Test0", "Test1", "Test2", "Test3"))
+  }
+
+  "biTraverseFlat" should " return Either[List[L], List[R]] for Left list" in {
+    val seq: Seq[EitherImp[List[Int], List[String]]] = List(LeftImp(List(0, 1, 2, 3, 4, 5)), LeftImp(List(0, 1, 2, 3, 4)),
+      LeftImp(List(0, 1, 2, 3)), LeftImp(List(0, 1, 2)), LeftImp(List(0, 1)), LeftImp(List(0)))
+    val leftTraverse = seq.biTraverseFlat
+    assert(leftTraverse.isLeft === true)
+    assert(leftTraverse.isRight === false)
+    assert(leftTraverse.left.get === List(0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0))
+  }
+
+  "biTraverseFlat" should " return Either[List[L], List[R]] for Left/Right list" in {
+    val seq: Seq[EitherImp[List[Int], List[String]]] = List(RightImp(List("Test0", "Test1", "Test2")),
+      LeftImp(List(0, 1, 2, 3, 4, 5)), LeftImp(List(0, 1, 2, 3, 4)), LeftImp(List(0, 1, 2, 3)),
+      RightImp(List("Test1", "Test2", "Test3")), LeftImp(List(0, 1, 2)),
+      RightImp(List("Test2", "Test3", "Test4")), LeftImp(List(0, 1)), LeftImp(List(0)),
+      RightImp(List("Test5")))
+    val leftTraverse = seq.biTraverseFlat
+    assert(leftTraverse.isLeft === true)
+    assert(leftTraverse.isRight === false)
+    assert(leftTraverse.left.get === List(0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0))
+  }
+
+  "biTraverseFlat" should " return Either[List[L], List[R]] for Right list" in {
+    val seq: Seq[EitherImp[List[Int], List[String]]] = List(RightImp(List("Test0", "Test1", "Test2")),
+      RightImp(List("Test1", "Test2", "Test3")), RightImp(List("Test2", "Test3", "Test4")), RightImp(List("Test5")))
+    val leftTraverse = seq.biTraverseFlat
+    assert(leftTraverse.isLeft === false)
+    assert(leftTraverse.isRight === true)
+    assert(leftTraverse.right.get === List("Test0", "Test1", "Test2", "Test1", "Test2", "Test3", "Test2", "Test3", "Test4", "Test5"))
   }
 
 }

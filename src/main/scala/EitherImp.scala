@@ -26,13 +26,13 @@ sealed trait EitherImp[+L, +R] extends Product with Serializable {
    */
   def leftFlatMap[L1, R1 >: R](f: L => EitherImp[L1, R1]): EitherImp[L1, R1] = this.left.flatMap(f)
 
-  /** Projects this `Either` as a `Left`.
-   */
-  def left: LeftProjectionImp[L, R] = LeftProjectionImp(this)
-
   /** Maps the function argument through `Left`.
    */
   def leftMap[L1](f: L => L1): EitherImp[L1, R] = left.map(f)
+
+  /** Projects this `Either` as a `Left`.
+   */
+  def left: LeftProjectionImp[L, R] = LeftProjectionImp(this)
 
 }
 
@@ -82,4 +82,32 @@ final case class LeftProjectionImp[+L, +R](e: EitherImp[L, R]) {
 
 }
 
-// Right#apply, Left#apply
+object Helpers {
+
+  implicit class EitherImpExtension[+L, +R](seq: Seq[EitherImp[List[L], R]]) {
+    def biTraverse: EitherImp[List[L], List[R]] = {
+      var leftList = List.empty[L]
+      var rightList = List.empty[R]
+      seq.foreach(a => if (a.isLeft) leftList = leftList ++ a.left.get else rightList = rightList :+ a.right.get)
+      if (leftList.nonEmpty) {
+        LeftImp(leftList)
+      } else {
+        RightImp(rightList)
+      }
+    }
+  }
+
+  implicit class EitherImpRightListExtension[+L, +R](seq: Seq[EitherImp[List[L], List[R]]]) {
+    def biTraverseFlat: EitherImp[List[L], List[R]] = {
+      var leftList = List.empty[L]
+      var rightList = List.empty[R]
+      seq.foreach(a => if (a.isLeft) leftList = leftList ++ a.left.get else rightList = rightList ++ a.right.get)
+      if (leftList.nonEmpty) {
+        LeftImp(leftList)
+      } else {
+        RightImp(rightList)
+      }
+    }
+  }
+
+}
