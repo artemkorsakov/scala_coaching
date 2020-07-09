@@ -86,26 +86,22 @@ object Helpers {
 
   implicit class EitherImpExtension[+L, +R](seq: Seq[EitherImp[List[L], R]]) {
     def biTraverse: EitherImp[List[L], List[R]] = {
-      var leftList = List.empty[L]
-      var rightList = List.empty[R]
-      seq.foreach(a => if (a.isLeft) leftList = leftList ++ a.left.get else rightList = rightList :+ a.right.get)
-      if (leftList.nonEmpty) {
-        LeftImp(leftList)
+      val (lefts, rights) = seq.partition(_.isLeft)
+      if (lefts.nonEmpty) {
+        LeftImp(lefts.flatMap(_.left.get).toList)
       } else {
-        RightImp(rightList)
+        RightImp(rights.map(_.right.get).toList)
       }
     }
   }
 
   implicit class EitherImpRightListExtension[+L, +R](seq: Seq[EitherImp[List[L], List[R]]]) {
     def biTraverseFlat: EitherImp[List[L], List[R]] = {
-      var leftList = List.empty[L]
-      var rightList = List.empty[R]
-      seq.foreach(a => if (a.isLeft) leftList = leftList ++ a.left.get else rightList = rightList ++ a.right.get)
-      if (leftList.nonEmpty) {
-        LeftImp(leftList)
+      val (lefts, rights) = seq.partition(_.isLeft)
+      if (lefts.nonEmpty) {
+        LeftImp(lefts.flatMap(_.left.get).toList)
       } else {
-        RightImp(rightList)
+        RightImp(rights.flatMap(_.right.get).toList)
       }
     }
   }
