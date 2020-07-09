@@ -1,5 +1,7 @@
 package bank
 
+import scala.collection.mutable
+
 object Bank {
 
   import java.util.UUID
@@ -56,11 +58,11 @@ object Bank {
   }
 
   class BankApplication extends UserService with AccountService with IdGenerator {
-    private var users: Map[String, UserId] = Map.empty[String, UserId]
-    private var accounts: Map[UserId, (AccountId, Balance)] = Map.empty[UserId, (AccountId, Balance)]
+    private val users: mutable.HashMap[String, UserId] = mutable.HashMap.empty[String, UserId]
+    private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] = mutable.HashMap.empty[UserId, (AccountId, Balance)]
 
     override def addUser(name: String): Boolean = if (users.contains(name)) false else {
-      users = users + (name -> newId)
+      users += (name -> newId)
       true
     }
 
@@ -80,7 +82,7 @@ object Bank {
         Left(UserNotFound(userId))
       } else {
         val id = newId
-        accounts = accounts + (userId -> (id, 0.0))
+        accounts += (userId -> (id, 0.0))
         Right(id)
       }
 
@@ -113,7 +115,7 @@ object Bank {
 
     private def changeBalance(userId: UserId, amount: BigDecimal): Either[AccountingError, Balance] = {
       val newAmount: Balance = accounts(userId)._2 + amount
-      accounts = accounts - userId + (userId -> (accounts(userId)._1, newAmount))
+      accounts(userId) = (accounts(userId)._1, newAmount)
       balance(userId)
     }
 

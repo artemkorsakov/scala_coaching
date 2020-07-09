@@ -34,12 +34,12 @@ class BankTests extends AnyFlatSpec with IdGenerator {
     allUsersIds = app.getAllUsersIds
     assert(!allUsersIds.isLeft)
     assert(allUsersIds.isRight)
-    assert(allUsersIds.getOrElse() == List(idJohn))
+    assert(allUsersIds.getOrElse() === List(idJohn))
 
     allUsersNames = app.getAllUsersNames
     assert(!allUsersNames.isLeft)
     assert(allUsersNames.isRight)
-    assert(allUsersNames.getOrElse() == List("John"))
+    assert(allUsersNames.getOrElse() === List("John"))
 
     eitherId = app.getUserIdByName("Mike")
     assert(eitherId.isLeft)
@@ -58,12 +58,16 @@ class BankTests extends AnyFlatSpec with IdGenerator {
     allUsersIds = app.getAllUsersIds
     assert(!allUsersIds.isLeft)
     assert(allUsersIds.isRight)
-    assert(allUsersIds.getOrElse() == List(idJohn, idMike))
+    assert(allUsersIds.getOrElse(List.empty[UUID]).length === 2)
+    assert(allUsersIds.getOrElse(List.empty[UUID]).contains(idJohn))
+    assert(allUsersIds.getOrElse(List.empty[UUID]).contains(idMike))
 
     allUsersNames = app.getAllUsersNames
     assert(!allUsersNames.isLeft)
     assert(allUsersNames.isRight)
-    assert(allUsersNames.getOrElse() == List("John", "Mike"))
+    assert(allUsersNames.getOrElse(List.empty[String]).length === 2)
+    assert(allUsersNames.getOrElse(List.empty[String]).contains("John"))
+    assert(allUsersNames.getOrElse(List.empty[String]).contains("Mike"))
 
     eitherId = app.getUserIdByName("Pete")
     assert(eitherId.isLeft)
