@@ -2,7 +2,8 @@ package bank
 
 import java.util.UUID
 
-import bank.Bank._
+import bank.BankApp._
+import bank.BankService._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class BankTests extends AnyFlatSpec with IdGenerator {

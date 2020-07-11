@@ -1,3 +1,5 @@
+package temp
+
 sealed trait EitherImp[+L, +R] extends Product with Serializable {
 
   def isLeft: Boolean
