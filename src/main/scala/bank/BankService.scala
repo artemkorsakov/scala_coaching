@@ -19,21 +19,22 @@ object BankService {
   }
 
   type UserId = UUID
-  trait UserService {
+  trait UserService[F[+_, +_]] {
     def addUser(name: String): Boolean
-    def getUserIdByName(name: String): Either[UserError, UserId]
-    def getAllUsersIds: Either[UserError, List[UserId]]
-    def getAllUsersNames: Either[UserError, List[String]]
+    def getUserIdByName(name: String): F[UserError, UserId]
+    def getAllUsersIds: F[UserError, List[UserId]]
+    def getAllUsersNames: F[UserError, List[String]]
   }
 
   type Balance = BigDecimal
   type AccountId = UUID
-  trait AccountService {
-    def createAccount(userId: UserId): Either[AccountingError, AccountId]
-    def getAccountIdByUser(userId: UserId): Either[AccountingError, AccountId]
-    def balance(userId: UserId): Either[AccountingError, Balance]
-    def put(userId: UserId, amount: BigDecimal): Either[AccountingError, Balance]
-    def charge(userId: UserId, amount: BigDecimal): Either[AccountingError, Balance]
+  trait AccountService[F[+_, +_]] {
+    def createAccount(userId: UserId): F[AccountingError, AccountId]
+    def getAccountIdByUser(userId: UserId): F[AccountingError, AccountId]
+    def balance(userId: UserId): F[AccountingError, Balance]
+    def put(userId: UserId, amount: BigDecimal): F[AccountingError, Balance]
+    def charge(userId: UserId, amount: BigDecimal): F[AccountingError, Balance]
   }
 
+  trait BankService[F[+_, +_]] extends UserService[F] with AccountService[F] {}
 }
