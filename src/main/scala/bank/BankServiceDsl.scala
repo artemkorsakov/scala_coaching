@@ -5,8 +5,20 @@ import bank.BankService._
 import scala.collection.mutable
 
 object BankServiceDsl extends IdGenerator {
-  type My[+A, +B] = Either[A, B]
+  object BankService {
+    def addUser[F[+_, +_]](name: String)(implicit interpreter: BankService[F]): Boolean = interpreter.addUser(name)
+    def getUserIdByName[F[+_, +_]](name: String)(implicit interpreter: BankService[F]): F[UserError, UserId] = interpreter.getUserIdByName(name)
+    def getAllUsersIds[F[+_, +_]](implicit interpreter: BankService[F]): F[UserError, List[UserId]] = interpreter.getAllUsersIds
+    def getAllUsersNames[F[+_, +_]](implicit interpreter: BankService[F]): F[UserError, List[String]] = interpreter.getAllUsersNames
 
+    def createAccount[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, AccountId] = interpreter.createAccount(userId)
+    def getAccountIdByUser[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, AccountId] = interpreter.getAccountIdByUser(userId)
+    def balance[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, Balance] = interpreter.balance(userId)
+    def put[F[+_, +_]](userId: UserId, amount: BigDecimal)(implicit interpreter: BankService[F]): F[AccountingError, Balance] = interpreter.put(userId, amount)
+    def charge[F[+_, +_]](userId: UserId, amount: BigDecimal)(implicit interpreter: BankService[F]): F[AccountingError, Balance] = interpreter.charge(userId, amount)
+  }
+
+  type My[+A, +B] = Either[A, B]
   implicit val myDsl: BankService[My] = new BankService[My] {
     private val users: mutable.HashMap[String, UserId] = mutable.HashMap.empty[String, UserId]
     private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] = mutable.HashMap.empty[UserId, (AccountId, Balance)]
@@ -63,7 +75,7 @@ object BankServiceDsl extends IdGenerator {
         }
       }
 
-    private def changeBalance(userId: UserId, amount: BigDecimal): Either[AccountingError, Balance] = {
+    private def changeBalance(userId: UserId, amount: BigDecimal): My[AccountingError, Balance] = {
       val newAmount: Balance = accounts(userId)._2 + amount
       accounts(userId) = (accounts(userId)._1, newAmount)
       balance(userId)
