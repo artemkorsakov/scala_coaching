@@ -37,4 +37,26 @@ object BankService {
   }
 
   trait BankService[F[+_, +_]] extends UserService[F] with AccountService[F] {}
+
+  object BankService {
+    def addUser[F[+_, +_]](name: String)(implicit interpreter: BankService[F]): Boolean =
+      interpreter.addUser(name)
+    def getUserIdByName[F[+_, +_]](name: String)(implicit interpreter: BankService[F]): F[UserError, UserId] =
+      interpreter.getUserIdByName(name)
+    def getAllUsersIds[F[+_, +_]](implicit interpreter: BankService[F]): F[UserError, List[UserId]] =
+      interpreter.getAllUsersIds
+    def getAllUsersNames[F[+_, +_]](implicit interpreter: BankService[F]): F[UserError, List[String]] =
+      interpreter.getAllUsersNames
+
+    def createAccount[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, AccountId] =
+      interpreter.createAccount(userId)
+    def getAccountIdByUser[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, AccountId] =
+      interpreter.getAccountIdByUser(userId)
+    def balance[F[+_, +_]](userId: UserId)(implicit interpreter: BankService[F]): F[AccountingError, Balance] =
+      interpreter.balance(userId)
+    def put[F[+_, +_]](userId: UserId, amount: BigDecimal)(implicit interpreter: BankService[F]): F[AccountingError, Balance] =
+      interpreter.put(userId, amount)
+    def charge[F[+_, +_]](userId: UserId, amount: BigDecimal)(implicit interpreter: BankService[F]): F[AccountingError, Balance] =
+      interpreter.charge(userId, amount)
+  }
 }

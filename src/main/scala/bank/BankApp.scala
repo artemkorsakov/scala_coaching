@@ -2,19 +2,20 @@ package bank
 
 import bank.BankService._
 import bank.BankServiceDsl._
+import bank.BankServiceOps._
 
 object BankApp {
 
   class BankApplication extends BankService[My] {
-    override def addUser(name: String): Boolean = BankService.addUser[My](name)
-    override def getUserIdByName(name: String): My[UserError, UserId] = BankService.getUserIdByName[My](name)
-    override def getAllUsersIds: My[UserError, List[UserId]] = BankService.getAllUsersIds[My]
-    override def getAllUsersNames: My[UserError, List[String]] = BankService.getAllUsersNames[My]
-    override def createAccount(userId: UserId): My[AccountingError, AccountId] = BankService.createAccount[My](userId)
-    override def getAccountIdByUser(userId: UserId): My[AccountingError, AccountId] = BankService.getAccountIdByUser[My](userId)
-    override def balance(userId: UserId): My[AccountingError, Balance] = BankService.balance[My](userId)
-    override def put(userId: UserId, amount: BigDecimal): My[AccountingError, Balance] = BankService.put[My](userId, amount)
-    override def charge(userId: UserId, amount: BigDecimal): My[AccountingError, Balance] = BankService.charge[My](userId, amount)
+    override def addUser(name: String): Boolean = name.addUser
+    override def getUserIdByName(name: String): My[UserError, UserId] = name.getUserIdByName
+    override def getAllUsersIds: My[UserError, List[UserId]] = "".getAllUsersIds
+    override def getAllUsersNames: My[UserError, List[String]] = "".getAllUsersNames
+    override def createAccount(userId: UserId): My[AccountingError, AccountId] = userId.createAccount
+    override def getAccountIdByUser(userId: UserId): My[AccountingError, AccountId] = userId.getAccountIdByUser
+    override def balance(userId: UserId): My[AccountingError, Balance] = userId.balance
+    override def put(userId: UserId, amount: BigDecimal): My[AccountingError, Balance] = userId.put(amount)
+    override def charge(userId: UserId, amount: BigDecimal): My[AccountingError, Balance] = userId.charge(amount)
 
     def balance(name: String): My[Error, Balance] = {
       for {
