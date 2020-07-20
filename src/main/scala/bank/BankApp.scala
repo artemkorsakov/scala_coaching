@@ -20,7 +20,7 @@ object BankApp {
     def balance(name: String): My[Error, Balance] = {
       for {
         id <- getUserIdByName(name)
-        newBalance <- balance(id)
+        newBalance <- balance(id.getOrElse(newId))
       } yield {
         newBalance
       }
@@ -29,7 +29,7 @@ object BankApp {
     def put(name: String, amount: BigDecimal): My[Error, Balance] = {
       for {
         id <- getUserIdByName(name)
-        newBalance <- put(id, amount)
+        newBalance <- put(id.getOrElse(newId), amount)
       } yield {
         newBalance
       }
@@ -38,7 +38,7 @@ object BankApp {
     def charge(name: String, amount: BigDecimal): My[Error, Balance] = {
       for {
         id <- getUserIdByName(name)
-        newBalance <- charge(id, amount)
+        newBalance <- charge(id.getOrElse(newId), amount)
       } yield {
         newBalance
       }
