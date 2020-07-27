@@ -1,11 +1,10 @@
 package bank
 
-import bank.BankServiceDsl.MyIO
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 
 object MyBIOImpl {
-  case class Wrapper[+A, +B](value: MyIO[A, B])
+  case class Wrapper[+A, +B](value: IO[Either[A, B]])
 
   type MyBIO[+A, +B] = Wrapper[A, B]
 

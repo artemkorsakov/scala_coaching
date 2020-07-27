@@ -2,27 +2,28 @@ package bank
 
 import bank.BankService._
 import bank.BankServiceDsl._
+import bank.MyBIOImpl.MyBIO
 
 object BankApp {
 
-  class BankApplication extends BankService[MyIO] {
+  class BankApplication extends BankService[MyBIO] {
     override def addUser(name: String): Boolean =
       BankService.addUser(name)
-    override def getUserIdByName(name: String): MyIO[UserError, UserId] =
+    override def getUserIdByName(name: String): MyBIO[UserError, UserId] =
       BankService.getUserIdByName(name)
-    override def getAllUsersIds: MyIO[UserError, List[UserId]] =
+    override def getAllUsersIds: MyBIO[UserError, List[UserId]] =
       BankService.getAllUsersIds
-    override def getAllUsersNames: MyIO[UserError, List[String]] =
+    override def getAllUsersNames: MyBIO[UserError, List[String]] =
       BankService.getAllUsersNames
-    override def createAccount(userId: UserId): MyIO[AccountingError, AccountId] =
+    override def createAccount(userId: UserId): MyBIO[AccountingError, AccountId] =
       BankService.createAccount(userId)
-    override def getAccountIdByUser(userId: UserId): MyIO[AccountingError, AccountId] =
+    override def getAccountIdByUser(userId: UserId): MyBIO[AccountingError, AccountId] =
       BankService.getAccountIdByUser(userId)
-    override def balance(userId: UserId): MyIO[AccountingError, Balance] =
+    override def balance(userId: UserId): MyBIO[AccountingError, Balance] =
       BankService.balance(userId)
-    override def put(userId: UserId, amount: BigDecimal): MyIO[AccountingError, Balance] =
+    override def put(userId: UserId, amount: BigDecimal): MyBIO[AccountingError, Balance] =
       BankService.put(userId, amount)
-    override def charge(userId: UserId, amount: BigDecimal): MyIO[AccountingError, Balance] =
+    override def charge(userId: UserId, amount: BigDecimal): MyBIO[AccountingError, Balance] =
       BankService.charge(userId, amount)
   }
 

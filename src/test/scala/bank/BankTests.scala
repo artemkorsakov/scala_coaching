@@ -5,7 +5,6 @@ import java.util.UUID
 import bank.BankApp._
 import bank.BankService._
 import bank.MyBIOImpl.MyBIO
-import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -24,14 +23,14 @@ class BankTests extends AnyFlatSpec with IdGenerator {
 
   "Bank methods " should " returns correct results" in {
     val app: BankApplication = new BankApplication
-    var allUsersIds          = app.getAllUsersIds.unsafeRunSync()
+    var allUsersIds          = app.getAllUsersIds.value.unsafeRunSync()
     assert(allUsersIds.isLeft)
     assert(!allUsersIds.isRight)
     assert(
       allUsersIds.left.getOrElse(UserListIsEmpty).isInstanceOf[UserListIsEmpty]
     )
 
-    var allUsersNames = app.getAllUsersNames.unsafeRunSync()
+    var allUsersNames = app.getAllUsersNames.value.unsafeRunSync()
     assert(allUsersNames.isLeft)
     assert(!allUsersNames.isRight)
     assert(
@@ -40,74 +39,74 @@ class BankTests extends AnyFlatSpec with IdGenerator {
         .isInstanceOf[UserListIsEmpty]
     )
 
-    var eitherId = app.getUserIdByName("John").unsafeRunSync()
+    var eitherId = app.getUserIdByName("John").value.unsafeRunSync()
     assert(eitherId.isLeft)
     assert(!eitherId.isRight)
     assert(eitherId.left.getOrElse() === NameNotFound("John"))
 
     app.addUser("John")
 
-    eitherId = app.getUserIdByName("John").unsafeRunSync()
+    eitherId = app.getUserIdByName("John").value.unsafeRunSync()
     assert(!eitherId.isLeft)
     assert(eitherId.isRight)
     val idJohn: UUID = eitherId.getOrElse(newId)
     assert(idJohn.toString.nonEmpty)
 
-    allUsersIds = app.getAllUsersIds.unsafeRunSync()
+    allUsersIds = app.getAllUsersIds.value.unsafeRunSync()
     assert(!allUsersIds.isLeft)
     assert(allUsersIds.isRight)
     assert(allUsersIds.getOrElse() === List(idJohn))
 
-    allUsersNames = app.getAllUsersNames.unsafeRunSync()
+    allUsersNames = app.getAllUsersNames.value.unsafeRunSync()
     assert(!allUsersNames.isLeft)
     assert(allUsersNames.isRight)
     assert(allUsersNames.getOrElse() === List("John"))
 
-    eitherId = app.getUserIdByName("Mike").unsafeRunSync()
+    eitherId = app.getUserIdByName("Mike").value.unsafeRunSync()
     assert(eitherId.isLeft)
     assert(!eitherId.isRight)
     assert(eitherId.left.getOrElse() === NameNotFound("Mike"))
 
     app.addUser("Mike")
 
-    eitherId = app.getUserIdByName("Mike").unsafeRunSync()
+    eitherId = app.getUserIdByName("Mike").value.unsafeRunSync()
     assert(!eitherId.isLeft)
     assert(eitherId.isRight)
     val idMike: UUID = eitherId.getOrElse(newId)
     assert(idMike.toString.nonEmpty)
     assert(idMike != idJohn)
 
-    allUsersIds = app.getAllUsersIds.unsafeRunSync()
+    allUsersIds = app.getAllUsersIds.value.unsafeRunSync()
     assert(!allUsersIds.isLeft)
     assert(allUsersIds.isRight)
     assert(allUsersIds.getOrElse(List.empty[UUID]).length === 2)
     assert(allUsersIds.getOrElse(List.empty[UUID]).contains(idJohn))
     assert(allUsersIds.getOrElse(List.empty[UUID]).contains(idMike))
 
-    allUsersNames = app.getAllUsersNames.unsafeRunSync()
+    allUsersNames = app.getAllUsersNames.value.unsafeRunSync()
     assert(!allUsersNames.isLeft)
     assert(allUsersNames.isRight)
     assert(allUsersNames.getOrElse(List.empty[String]).length === 2)
     assert(allUsersNames.getOrElse(List.empty[String]).contains("John"))
     assert(allUsersNames.getOrElse(List.empty[String]).contains("Mike"))
 
-    eitherId = app.getUserIdByName("Pete").unsafeRunSync()
+    eitherId = app.getUserIdByName("Pete").value.unsafeRunSync()
     assert(eitherId.isLeft)
     assert(!eitherId.isRight)
     assert(eitherId.left.getOrElse() === NameNotFound("Pete"))
 
-    var crAcc = app.createAccount(idJohn).unsafeRunSync()
+    var crAcc = app.createAccount(idJohn).value.unsafeRunSync()
     assert(!crAcc.isLeft)
     assert(crAcc.isRight)
     val accountIdJohn: UUID = crAcc.getOrElse(newId)
     assert(accountIdJohn.toString.nonEmpty)
 
-    crAcc = app.createAccount(idJohn).unsafeRunSync()
+    crAcc = app.createAccount(idJohn).value.unsafeRunSync()
     assert(crAcc.isLeft)
     assert(!crAcc.isRight)
     assert(crAcc.left.getOrElse() === UserAlreadyHasAccount(idJohn))
 
-    crAcc = app.createAccount(idMike).unsafeRunSync()
+    crAcc = app.createAccount(idMike).value.unsafeRunSync()
     assert(!crAcc.isLeft)
     assert(crAcc.isRight)
     val accountIdMike: UUID = crAcc.getOrElse(newId)
@@ -115,18 +114,18 @@ class BankTests extends AnyFlatSpec with IdGenerator {
     assert(accountIdMike != accountIdJohn)
 
     val random: UUID = newId
-    crAcc = app.createAccount(random).unsafeRunSync()
+    crAcc = app.createAccount(random).value.unsafeRunSync()
     assert(crAcc.isLeft)
     assert(!crAcc.isRight)
     assert(crAcc.left.getOrElse() === UserNotFound(random))
 
-    assert(app.getAccountIdByUser(idJohn) === IO.pure(Right(accountIdJohn)))
-    assert(app.getAccountIdByUser(idMike) === IO.pure(Right(accountIdMike)))
-    assert(app.getAccountIdByUser(random) === IO.pure(Left(UserNotFound(random))))
+    assert(app.getAccountIdByUser(idJohn).value.unsafeRunSync() === Right(accountIdJohn))
+    assert(app.getAccountIdByUser(idMike).value.unsafeRunSync() === Right(accountIdMike))
+    assert(app.getAccountIdByUser(random).value.unsafeRunSync() === Left(UserNotFound(random)))
 
-    assert(app.balance(idJohn) === IO.pure(Right(0.0)))
-    assert(app.balance(idMike) === IO.pure(Right(0.0)))
-    assert(app.balance(random) === IO.pure(Left(UserNotFound(random))))
+    assert(app.balance(idJohn).value.unsafeRunSync() === Right(0.0))
+    assert(app.balance(idMike).value.unsafeRunSync() === Right(0.0))
+    assert(app.balance(random).value.unsafeRunSync() === Left(UserNotFound(random)))
 
     app.addUser("Pete")
 
