@@ -65,4 +65,5 @@ object BankService {
     ): F[AccountingError, Balance] =
       interpreter.charge(userId, amount)
   }
+
 }

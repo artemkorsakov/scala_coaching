@@ -1,9 +1,11 @@
 package bank
 
-import cats.effect._
+import bank.BankServiceDsl.MyIO
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 
 object MyBIOImpl {
-  case class Wrapper[+A, +B](value: IO[Either[A, B]])
+  case class Wrapper[+A, +B](value: MyIO[A, B])
 
   type MyBIO[+A, +B] = Wrapper[A, B]
 
@@ -12,27 +14,18 @@ object MyBIOImpl {
     def apply[B](value: B): MyBIO[Nothing, B]         = new MyBIO(IO(Right(value)))
   }
 
-  implicit class Syntax[A, B](mybio: MyBIO[A, B]) {
+  implicit class Syntax[A, B](myBio: MyBIO[A, B]) {
     def flatMap[C](f: B => MyBIO[A, C]): MyBIO[A, C] =
-      for {
-        b <- mybio
-        p <- f(b)
-      } yield p
+      myBio.value.unsafeRunSync() match {
+        case Right(value) => f(value)
+        case Left(value)  => new MyBIO(IO(Left(value)))
+      }
 
     final def map[C](f: B => C): MyBIO[A, C] =
-      for {
-        b <- mybio
-      } yield f(b)
+      myBio.value.unsafeRunSync() match {
+        case Right(value) => MyBIO(f(value))
+        case Left(value)  => new MyBIO(IO(Left(value)))
+      }
   }
 
-  /*
-val p = for {
-  a <- MyBIO(1)
-  b <- MyBIO(2)
-} yield {
-  a + b
-}
-
-println(p.value.unsafeRunSync())
- */
 }
