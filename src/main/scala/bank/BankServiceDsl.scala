@@ -6,8 +6,7 @@ import bank.MyBIOImpl.MyBIO
 import scala.collection.mutable
 
 object BankServiceDsl extends IdGenerator {
-
-  implicit val myIODsl: BankService[MyBIO] = new BankService[MyBIO] {
+  implicit val myBIODsl: BankService[MyBIO] = new BankService[MyBIO] {
     private val users: mutable.HashMap[String, UserId] = mutable.HashMap.empty[String, UserId]
     private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] =
       mutable.HashMap.empty[UserId, (AccountId, Balance)]
