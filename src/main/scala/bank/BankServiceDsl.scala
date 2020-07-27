@@ -6,16 +6,20 @@ import cats.effect._
 import scala.collection.mutable
 
 object BankServiceDsl extends IdGenerator {
-  type My[+A, +B] = Either[A, B]
+  type My[+A, +B]   = Either[A, B]
+  type MyIO[+A, +B] = IO[Either[A, B]]
 
   implicit val myDsl: BankService[My] = new BankService[My] {
     private val users: mutable.HashMap[String, UserId] = mutable.HashMap.empty[String, UserId]
-    private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] = mutable.HashMap.empty[UserId, (AccountId, Balance)]
+    private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] =
+      mutable.HashMap.empty[UserId, (AccountId, Balance)]
 
-    override def addUser(name: String): Boolean = if (users.contains(name)) false else {
-      users += (name -> newId)
-      true
-    }
+    override def addUser(name: String): Boolean =
+      if (users.contains(name)) false
+      else {
+        users += (name -> newId)
+        true
+      }
 
     override def getUserIdByName(name: String): My[UserError, UserId] =
       if (users.contains(name)) Right(users(name)) else Left(NameNotFound(name))
@@ -29,7 +33,9 @@ object BankServiceDsl extends IdGenerator {
     override def createAccount(userId: UserId): My[AccountingError, AccountId] =
       if (accounts.contains(userId)) {
         Left(UserAlreadyHasAccount(userId))
-      } else if (!getAllUsersIds.getOrElse(List.empty[UserId]).contains(userId)) {
+      } else if (!getAllUsersIds
+                   .getOrElse(List.empty[UserId])
+                   .contains(userId)) {
         Left(UserNotFound(userId))
       } else {
         val id = newId
@@ -71,16 +77,18 @@ object BankServiceDsl extends IdGenerator {
     }
   }
 
-  type MyIO[+A, +B] = IO[Either[A, B]]
-
+  /*
   implicit val myIODsl: BankService[MyIO] = new BankService[MyIO] {
     private val users: mutable.HashMap[String, UserId] = mutable.HashMap.empty[String, UserId]
-    private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] = mutable.HashMap.empty[UserId, (AccountId, Balance)]
+    private val accounts: mutable.HashMap[UserId, (AccountId, Balance)] =
+      mutable.HashMap.empty[UserId, (AccountId, Balance)]
 
-    override def addUser(name: String): Boolean = if (users.contains(name)) false else {
-      users += (name -> newId)
-      true
-    }
+    override def addUser(name: String): Boolean =
+      if (users.contains(name)) false
+      else {
+        users += (name -> newId)
+        true
+      }
 
     override def getUserIdByName(name: String): MyIO[UserError, UserId] =
       if (users.contains(name)) IO.pure(Right(users(name))) else IO.pure(Left(NameNotFound(name)))
@@ -94,7 +102,7 @@ object BankServiceDsl extends IdGenerator {
     override def createAccount(userId: UserId): MyIO[AccountingError, AccountId] =
       if (accounts.contains(userId)) {
         IO.pure(Left(UserAlreadyHasAccount(userId)))
-      } else if (!getAllUsersIds.getOrElse(List.empty[UserId]).contains(userId)) {
+      } else if (!users.values.toList.contains(userId)) {
         IO.pure(Left(UserNotFound(userId)))
       } else {
         val id = newId
@@ -135,5 +143,7 @@ object BankServiceDsl extends IdGenerator {
       balance(userId)
     }
   }
+
+ */
 
 }

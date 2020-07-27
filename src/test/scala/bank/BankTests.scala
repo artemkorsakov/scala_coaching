@@ -9,15 +9,21 @@ import org.scalatest.flatspec.AnyFlatSpec
 class BankTests extends AnyFlatSpec with IdGenerator {
   "Bank methods " should " returns correct results" in {
     val app: BankApplication = new BankApplication
-    var allUsersIds = app.getAllUsersIds
+    var allUsersIds          = app.getAllUsersIds
     assert(allUsersIds.isLeft)
     assert(!allUsersIds.isRight)
-    assert(allUsersIds.left.getOrElse(UserListIsEmpty).isInstanceOf[UserListIsEmpty])
+    assert(
+      allUsersIds.left.getOrElse(UserListIsEmpty).isInstanceOf[UserListIsEmpty]
+    )
 
     var allUsersNames = app.getAllUsersNames
     assert(allUsersNames.isLeft)
     assert(!allUsersNames.isRight)
-    assert(allUsersNames.left.getOrElse(UserListIsEmpty).isInstanceOf[UserListIsEmpty])
+    assert(
+      allUsersNames.left
+        .getOrElse(UserListIsEmpty)
+        .isInstanceOf[UserListIsEmpty]
+    )
 
     var eitherId = app.getUserIdByName("John")
     assert(eitherId.isLeft)
@@ -161,18 +167,37 @@ class BankTests extends AnyFlatSpec with IdGenerator {
     assert(app.charge("Pete", 100) === Left(UserNotFound(idPete)))
     assert(app.charge("Paul", 100) === Left(NameNotFound("Paul")))
 
-    var result = app.chargeAll(List(("John", 13.56), ("Mike", 0.5), ("John", 0.53), ("John", -7.51), ("Pete", 0.5), ("Paul", 0.5)))
+    var result = app.chargeAll(
+      List(
+        ("John", 13.56),
+        ("Mike", 0.5),
+        ("John", 0.53),
+        ("John", -7.51),
+        ("Pete", 0.5),
+        ("Paul", 0.5)
+      )
+    )
     assert(result.isLeft)
     assert(!result.isRight)
-    assert(result.left.getOrElse(List.empty[Error]) === List(BalanceTooLow(0.0), UserNotFound(idPete), NameNotFound("Paul")))
+    assert(
+      result.left.getOrElse(List.empty[Error]) === List(
+          BalanceTooLow(0.0),
+          UserNotFound(idPete),
+          NameNotFound("Paul")
+        )
+    )
     assert(app.balance("John") === Right(60.92))
     assert(app.balance("Mike") === Right(0.0))
 
     assert(app.put("Mike", 15.0) === Right(15.0))
-    result = app.chargeAll(List(("John", 13.56), ("Mike", 0.5), ("John", 0.53), ("John", -7.51)))
+    result = app.chargeAll(
+      List(("John", 13.56), ("Mike", 0.5), ("John", 0.53), ("John", -7.51))
+    )
     assert(!result.isLeft)
     assert(result.isRight)
-    assert(result.getOrElse(List.empty[Balance]) === List(47.36, 14.50, 46.83, 54.34))
+    assert(
+      result.getOrElse(List.empty[Balance]) === List(47.36, 14.50, 46.83, 54.34)
+    )
     assert(app.balance("John") === Right(54.34))
     assert(app.balance("Mike") === Right(14.50))
   }
