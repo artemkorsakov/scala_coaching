@@ -1,7 +1,6 @@
 package bank
 
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 
 object MyBIOImpl {
   case class Wrapper[+A, +B](value: IO[Either[A, B]])
@@ -15,16 +14,16 @@ object MyBIOImpl {
 
   implicit class Syntax[A, B](myBio: MyBIO[A, B]) {
     def flatMap[C](f: B => MyBIO[A, C]): MyBIO[A, C] =
-      myBio.value.unsafeRunSync() match {
-        case Right(value) => f(value)
-        case Left(value)  => new MyBIO(IO(Left(value)))
-      }
+      new MyBIO(myBio.value.flatMap {
+        case Right(value) => f(value).value
+        case Left(value)  => IO(Left(value))
+      })
 
     final def map[C](f: B => C): MyBIO[A, C] =
-      myBio.value.unsafeRunSync() match {
-        case Right(value) => MyBIO(f(value))
-        case Left(value)  => new MyBIO(IO(Left(value)))
-      }
+      new MyBIO(myBio.value.flatMap {
+        case Right(value) => IO(Right(f(value)))
+        case Left(value)  => IO(Left(value))
+      })
   }
 
 }

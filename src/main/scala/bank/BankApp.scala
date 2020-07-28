@@ -52,11 +52,11 @@ object BankApp {
       }
 
     def chargeAll(users: List[(String, Balance)]): MyBIO[List[Error], List[Balance]] = {
-      val (lefts, rights) = users.map(user => charge(user._1, user._2)).partition(_.value.unsafeRunSync().isLeft)
+      val (lefts, rights) = users.map(user => charge(user._1, user._2).value.unsafeRunSync()).partition(_.isLeft)
       if (lefts.nonEmpty) {
-        MyBIO(Left(lefts.map(_.value.unsafeRunSync().left.getOrElse(new Error()))))
+        MyBIO(Left(lefts.map(_.left.getOrElse(new Error()))))
       } else {
-        MyBIO(rights.map(bio => bio.value.unsafeRunSync().getOrElse(0: Balance)))
+        MyBIO(rights.map(bio => bio.getOrElse(0: Balance)))
       }
     }
   }
