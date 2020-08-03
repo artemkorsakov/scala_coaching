@@ -3,7 +3,6 @@ package bank
 import bank.BankService._
 import bank.BankServiceDsl._
 import bank.MyBIOImpl.MyBIO
-import cats.effect.unsafe.implicits.global
 
 object BankApp {
 
@@ -51,14 +50,8 @@ object BankApp {
         newBalance
       }
 
-    def chargeAll(users: List[(String, Balance)]): MyBIO[List[Error], List[Balance]] = {
-      val (lefts, rights) = users.map(user => charge(user._1, user._2).value.unsafeRunSync()).partition(_.isLeft)
-      if (lefts.nonEmpty) {
-        MyBIO(Left(lefts.map(_.left.getOrElse(new Error()))))
-      } else {
-        MyBIO(rights.map(bio => bio.getOrElse(0: Balance)))
-      }
-    }
+    def chargeAll(users: List[(String, Balance)]): MyBIO[List[Error], List[Balance]] =
+      MyBIO.listTraverse(users)(charge)
   }
 
 }
