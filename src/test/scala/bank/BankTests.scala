@@ -22,8 +22,8 @@ class BankTests extends AnyFlatSpec with IdGenerator {
   }
 
   "Bank methods " should " returns correct results" in {
-    val app: BankApplication = new BankApplication
-    val allUsersIds1         = app.getAllUsersIds.value.unsafeRunSync()
+    val app          = new BankApplication
+    val allUsersIds1 = app.getAllUsersIds.value.unsafeRunSync()
     assert(allUsersIds1.isLeft)
     assert(!allUsersIds1.isRight)
     val error1 = allUsersIds1.left.getOrElse(UserListIsEmpty)
