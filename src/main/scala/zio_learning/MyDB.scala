@@ -1,6 +1,8 @@
-package zio
+package zio_learning
 
 import java.util.UUID
+
+import zio._
 
 object MyDB {
   type UserID = UUID

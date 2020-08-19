@@ -1,8 +1,9 @@
-package zio
+package zio_learning
 
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 import zio.console._
+import zio.{ IO, ZIO, _ }
 
 class BasicOperationTests extends AnyFunSuiteLike with Matchers {
   test("test Basic Operation.") {

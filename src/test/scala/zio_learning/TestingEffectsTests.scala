@@ -1,9 +1,10 @@
-package zio
+package zio_learning
 
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
-import zio.MyDB._
+import zio.{ ZIO, _ }
 import zio.console._
+import zio_learning.MyDB._
 
 class TestingEffectsTests extends AnyFunSuiteLike with Matchers {
   test("test Testing Effects.") {

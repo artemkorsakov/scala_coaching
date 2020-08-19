@@ -1,11 +1,11 @@
-package zio
+package zio_learning
 
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion.User
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
+import zio.{ IO, Task, UIO, ZIO, _ }
 
 class CreatingEffectsTests extends AnyFunSuiteLike with Matchers {
-  val runtime: Runtime[zio.ZEnv] = Runtime.default
+  val runtime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
   test("test creating Effects From Success Values") {
     val s1 = ZIO.succeed(42)
@@ -35,15 +35,7 @@ class CreatingEffectsTests extends AnyFunSuiteLike with Matchers {
     case class User(userId: String, teamId: String)
     case class Team()
 
-    val maybeId: IO[Option[Nothing], String]                 = ZIO.fromOption(Some("abc123"))
-    def getUser(userId: String): IO[Throwable, Option[User]] = ???
-    def getTeam(teamId: String): IO[Throwable, Team]         = ???
-
-    val result: IO[Throwable, Option[(User, Team)]] = (for {
-      id   <- maybeId
-      user <- getUser(id).some
-      team <- getTeam(user.teamId).asSomeError
-    } yield (user, team)).optional
+    val maybeId: IO[Option[Nothing], String] = ZIO.fromOption(Some("abc123"))
   }
 
   test("test creating Effects. From Scala Values. Either") {
@@ -76,22 +68,6 @@ class CreatingEffectsTests extends AnyFunSuiteLike with Matchers {
 
     val getStrLn: Task[String]            = ZIO.effect(StdIn.readLine())
     def putStrLn(line: String): UIO[Unit] = ZIO.effectTotal(println(line))
-  }
-
-  test("test creating Effects. Asynchronous Side-Effects") {
-    case class AuthError()
-
-    object legacy {
-      def login(onSuccess: User => Unit, onFailure: AuthError => Unit): Unit = ???
-    }
-
-    val login: IO[AuthError, User] =
-      IO.effectAsync[AuthError, User] { callback =>
-        legacy.login(
-          user => callback(IO.succeed(user)),
-          err => callback(IO.fail(err))
-        )
-      }
   }
 
   test("test creating Effects. Blocking Synchronous Side-Effects") {

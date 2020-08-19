@@ -1,7 +1,8 @@
-package zio
+package zio_learning
 
 import java.io.IOException
 
+import zio._
 import zio.console._
 
 object MyApp extends zio.App {

@@ -1,7 +1,8 @@
-package zio
+package zio_learning
 
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
+import zio.{ IO, UIO }
 
 class HandlingResourcesTests extends AnyFunSuiteLike with Matchers {
   test("test Handling Resources.") {

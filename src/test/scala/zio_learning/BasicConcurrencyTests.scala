@@ -1,10 +1,12 @@
-package zio
+package zio_learning
 
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
+import zio._
+import zio.duration._
 
 class BasicConcurrencyTests extends AnyFunSuiteLike with Matchers {
-  val runtime: Runtime[zio.ZEnv] = Runtime.default
+  val runtime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
   test("test Basic Concurrency.") {
     def fib(n: Long): UIO[Long] =
@@ -50,8 +52,6 @@ class BasicConcurrencyTests extends AnyFunSuiteLike with Matchers {
       fiber = fiber1.orElse(fiber2)
       tuple <- fiber.join
     } yield tuple
-
-    import zio.duration._
 
     IO.succeed("Hello").timeout(10.seconds)
   }
