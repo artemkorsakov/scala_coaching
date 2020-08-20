@@ -1,7 +1,7 @@
 package bank
 
 import bank.BankService._
-import bank.BankServiceDsl._
+import bank.BankServiceDsl.myBIODsl
 import bank.MyBIOImpl.MyBIO
 
 object BankApp {
